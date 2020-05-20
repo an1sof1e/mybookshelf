@@ -1,15 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mybookshelf/registerscreen.dart';
+import 'package:mybookshelf/mainscreen.dart';
 import 'package:http/http.dart' as http;
+import 'package:mybookshelf/user.dart';
 import 'package:toast/toast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:progress_dialog/progress_dialog.dart';
+
 
 void main() => runApp(LoginScreen());
 bool rememberMe = false;
 
 class LoginScreen extends StatefulWidget {
   @override
+  /*final User user;
+  const LoginScreen ({Key key, this.user}) : super(key: key);*/
+
   _LoginScreenState createState() => _LoginScreenState();
 }
 
@@ -23,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     print("Hello i'm in INITSTATE");
-    loadPref();
+    this.loadPref();
   }
 
   @override
@@ -145,7 +154,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         color: Colors.blue[800],
                         textColor: Colors.black,
                         elevation: 10,
-                        onPressed: _userLogin,
+                        onPressed: this._userLogin,
                       ),
                     ],
                   ),
@@ -196,30 +205,68 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
+        /*children: <Widget>[
+          Icon( 
+            Icons.shopping_basket,
+        size: 40,
+        color: Colors.pinkAccent,),]*/
       ),
     );
   }
 
-  void _userLogin() {
+  void _userLogin() async {
+    try {
+      ProgressDialog pr = new ProgressDialog(context,
+      type: ProgressDialogType.Normal, isDismissible: false);
+      pr.style(message: "Login . . .");
+      pr.show();
     String email = _emailController.text;
     String password = _passwordController.text;
 
     http.post(urlLogin, body: {
       "email": email,
       "password": password,
-    }).then((res) {
-      if (res.body == "Success") {
-       
-        Toast.show("Login Success", context,
+    })
+    
+    
+    .then((res) {
+      print(res.body);
+      var string = res.body;
+      List userdata = string.split(",");
+            if (userdata[0] == "success") {
+              User _user = new User(
+                  name: userdata[1],
+                  email: email,
+                  password: password,
+                  phone: userdata[3],
+                  //credit: userdata[4],
+                  //datereg: userdata[5],
+                  quantity: userdata[4]);
+              pr.hide();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (BuildContext context) => MainScreen(
+                            user: _user,
+                          )));
+            Toast.show("Login successful", context,
             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-      } else {
-        Toast.show("Login Failed", context,
-            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
-      }
-    }).catchError((err) {
-      print(err);
-    });
+            } else {
+              pr.hide();
+            Toast.show("Login failed", context,
+                  duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+            }
+          })
+          .catchError((err) {
+            print(err);
+            pr.hide();
+          });
+    } on Exception  catch (_) {
+      Toast.show("Error", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    }
   }
+
 
   void _registerUser() {
     Navigator.push(context,
@@ -287,8 +334,16 @@ class _LoginScreenState extends State<LoginScreen> {
     return showDialog(
           context: context,
           builder: (context) => new AlertDialog(
-            title: new Text('Are you sure?'),
-            content: new Text('Do you want to exit the App'),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            title: new Text('Are you sure?',
+            style: TextStyle(
+                color: Colors.white,
+              ),),
+            content: new Text('Do you want to exit the App',
+            style: TextStyle(
+                color: Colors.white,
+              ),),
             actions: <Widget>[
               MaterialButton(
                   onPressed: () {
@@ -306,10 +361,10 @@ class _LoginScreenState extends State<LoginScreen> {
         false;
   }
 
-  void loadPref() async {
+  Future<void> loadPref() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String email = (prefs.getString('email'))??'';
-    String password = (prefs.getString('pass'))??'';
+    String password = (prefs.getString('password'))??'';
     if (email.length > 1) {
       setState(() {
         _emailController.text = email;
@@ -326,13 +381,13 @@ class _LoginScreenState extends State<LoginScreen> {
     if (value) {
       //save preference
       await prefs.setString('email', email);
-      await prefs.setString('pass', password);
+      await prefs.setString('password', password);
       Toast.show("Preferences have been saved", context,
           duration: Toast.LENGTH_SHORT, gravity: Toast.BOTTOM);
     } else {
       //delete preference
       await prefs.setString('email', '');
-      await prefs.setString('pass', '');
+      await prefs.setString('password', '');
       setState(() {
         _emailController.text = '';
         _passwordController.text = '';
