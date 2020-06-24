@@ -1,11 +1,11 @@
 class Product {
-  String id, name, price, quantity, weigth, type;
+  String id, name, price, quantity, weight, type;
   Product({
     this.id,
     this.name,
     this.price,
     this.quantity,
-    this.weigth,
+    this.weight,
     this.type,
   });
 }

@@ -207,7 +207,7 @@ class _LoginScreenState extends State<LoginScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         /*children: <Widget>[
           Icon( 
-            Icons.shopping_basket,
+            Icons.shopping_basket,4
         size: 40,
         color: Colors.pinkAccent,),]*/
       ),
@@ -338,23 +338,31 @@ class _LoginScreenState extends State<LoginScreen> {
                 borderRadius: BorderRadius.all(Radius.circular(20.0))),
             title: new Text('Are you sure?',
             style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
               ),),
             content: new Text('Do you want to exit the App',
             style: TextStyle(
-                color: Colors.white,
+                color: Colors.black,
               ),),
             actions: <Widget>[
               MaterialButton(
                   onPressed: () {
                     SystemChannels.platform.invokeMethod('SystemNavigator.pop');
                   },
-                  child: Text("Exit")),
+                  child: Text("Exit",
+                   style: TextStyle(
+                      color: Colors.blue[500],
+                   ),
+                  )),
               MaterialButton(
                   onPressed: () {
                     Navigator.of(context).pop(false);
                   },
-                  child: Text("Cancel")),
+                  child: Text("Cancel",
+                  style: TextStyle(
+                      color: Colors.blue[500],
+                  ),
+                      )),
             ],
           ),
         ) ??

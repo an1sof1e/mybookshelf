@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-//import 'package:mybookshelf/profilescreen.dart';
+import 'package:flutter/services.dart';
+import 'package:mybookshelf/adminproduct.dart';
+import 'package:mybookshelf/paymenthistoryscreen.dart';
+import 'package:mybookshelf/profilescreen.dart';
 import 'package:mybookshelf/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:progress_dialog/progress_dialog.dart';
@@ -10,7 +13,7 @@ import 'package:toast/toast.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'cartscreen.dart';
-//import 'profilescreen.dart';
+import 'profilescreen.dart';
 
 
 class MainScreen extends StatefulWidget {
@@ -30,11 +33,17 @@ class _MainScreenState extends State<MainScreen> {
   String curtype = "Recent";
   String cartquantity = "0";
   int quantity = 1;
+  bool _isadmin = false;
+  String titlecenter = "Loading books . . .";
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _loadCartQuantity();
+     if (widget.user.email == "admin@mybookshelf.com") {
+      _isadmin = true;
+     }
   }
 
   @override
@@ -43,33 +52,14 @@ class _MainScreenState extends State<MainScreen> {
     screenWidth = MediaQuery.of(context).size.width;
     TextEditingController _prdController = new TextEditingController();
     
-    if (productdata == null) {
-      return Scaffold(
-          appBar: AppBar(
-            title: Text('Products List'),
-          ),
-          body: Container(
-              child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: <Widget>[
-                CircularProgressIndicator(),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(
-                  "Loading Products . . .",
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                )
-              ],
-            ),
-          )));
-    } else {
-      return Scaffold(
-        //drawer: mainDrawer(context),
+ return WillPopScope(
+        onWillPop: _onBackPressed,
+        child: Scaffold(
+          backgroundColor: Colors.purple[300],
+          drawer: mainDrawer(context),
         appBar: AppBar(
-          title: Text('Products List',
+          backgroundColor: Colors.deepPurple[300],
+          title: Text('Books List',
           style: TextStyle(
               color: Colors.white,),
           ),
@@ -280,7 +270,6 @@ class _MainScreenState extends State<MainScreen> {
                           ),
                         ))),
               ),
-          
               
               Visibility(
                   visible: _visible,
@@ -296,6 +285,8 @@ class _MainScreenState extends State<MainScreen> {
                               child: Container(
                             height: 30,
                             child: TextField(
+                              style: TextStyle(
+                                    color: Colors.black,),
                                 autofocus: false,
                                 controller: _prdController,
                                 decoration: InputDecoration(
@@ -321,7 +312,18 @@ class _MainScreenState extends State<MainScreen> {
                     fontSize: 16, 
                     fontWeight: FontWeight.bold,
                     color: Colors.white)),
-              Expanded(
+                    productdata == null
+                    ? Flexible(
+                        child: Container(
+                            child: Center(
+                                child: Text(
+                        titlecenter,
+                        style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold),
+                      ))))
+              : Expanded(
                   child: GridView.count(
                       crossAxisCount: 2,
                       childAspectRatio: (screenWidth / screenHeight) / 0.80,
@@ -368,7 +370,7 @@ class _MainScreenState extends State<MainScreen> {
                                       productdata[index]['quantity'],
                                       style: TextStyle(color: Colors.black),),
                                   Text("Weight: " +
-                                      productdata[index]['weigth'] +
+                                      productdata[index]['weight'] +
                                       " gram",
                                       style: TextStyle(color: Colors.black),),
                                   MaterialButton(
@@ -382,7 +384,7 @@ class _MainScreenState extends State<MainScreen> {
                                     color: Colors.blue[500],
                                     textColor: Colors.white,
                                     elevation: 10,
-                                    onPressed: () => (index),
+                                    onPressed: () => _addtoCartdialog(index),
                                   ),
                                 ],
                               ),
@@ -393,20 +395,36 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ),
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+              if (widget.user.email == "unregistered") {
+                Toast.show("Please register to use this function", context,
+                    duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+                return;
+              } else if (widget.user.email == "admin@mybookshelf.com") {
+                Toast.show("Admin mode!!!", context,
+                    duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+                return;
+              } else if (widget.user.quantity == "0") {
+                Toast.show("Cart empty", context,
+                    duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+                return;
+              } else {
+                await Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (BuildContext context) => CartScreen(
                           user: widget.user,
                         )));
+                        _loadData();
+                        _loadCartQuantity();
+              }
           },
           icon: Icon(Icons.add_shopping_cart),
           label: Text(cartquantity),
         ),
-      );
+     ));
     }
-  }
+  
 
   _onImageDisplay(int index) {
     showDialog(
@@ -453,17 +471,31 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  /*Widget mainDrawer(BuildContext context) {
+  void _loadCartQuantity() async {
+    String urlLoadJobs = "https://www.asaboleh.com/mybookshelf/php/load_cartquantity.php";
+    await http.post(urlLoadJobs, body: {
+      "email": widget.user.email,
+    }).then((res) {
+      if (res.body == "nodata") {
+      } else {
+        widget.user.quantity = res.body;
+      }
+    }).catchError((err) {
+      print(err);
+    });
+  }
+
+  Widget mainDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
         children: <Widget>[
           UserAccountsDrawerHeader(
             accountName: Text(widget.user.name),
             accountEmail: Text(widget.user.email),
-            otherAccountsPictures: <Widget>[
-              Text("RM " + widget.user.credit,
+            /*otherAccountsPictures: <Widget>[
+              Text(widget.user.name,
                   style: TextStyle(fontSize: 16.0, color: Colors.white)),
-            ],
+            ],*/
             currentAccountPicture: CircleAvatar(
               backgroundColor:
                   Theme.of(context).platform == TargetPlatform.android
@@ -473,36 +505,70 @@ class _MainScreenState extends State<MainScreen> {
                 widget.user.name.toString().substring(0, 1).toUpperCase(),
                 style: TextStyle(fontSize: 40.0),
               ),
+              /*backgroundImage: NetworkImage(
+                  "https://www.asaboleh.com/profileimages/${widget.user.email}.jpg?"),*/
             ),
+            onDetailsPressed: () => {
+              Navigator.pop(context),
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => ProfileScreen(
+                            user: widget.user,
+                          )))
+            },
           ),
          ListTile(
-            title: Text("Search product"),
-            trailing: Icon(Icons.arrow_forward),
-          ),
+            title: Text("Book List",
+            style: TextStyle(
+                  color: Colors.black,
+                ),
+              ),
+              trailing: Icon(Icons.arrow_forward), 
+              onTap: () => {
+                    Navigator.pop(context),
+                    _loadData(),
+                  }),
           ListTile(
               title: Text("Shopping Cart",
               style: TextStyle(
-                  color: Colors.white,),),
+                  color: Colors.black,
+                  ),
+                  ),
               trailing: Icon(Icons.arrow_forward),
               onTap: () => {
                     Navigator.pop(context),
-                    Navigator.push(
+                    gotoCart(),
+                    /*Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) => CartScreen(
                                   user: widget.user,
-                                )))
+                                )))*/
                   }),
           ListTile(
-            title: Text("Purchased History",
+            title: Text("Payment History",
             style: TextStyle(
-                  color: Colors.white,),),
+                  color: Colors.black,
+                  ),
+                  ),
             trailing: Icon(Icons.arrow_forward),
-          ),
+             onTap: () => {
+                    Navigator.pop(context),
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                PaymentHistoryScreen(
+                                  user: widget.user,
+                                ))),
+                  }),
           ListTile(
             title: Text("User Profile",
             style: TextStyle(
-                  color: Colors.white,),),
+                  color: Colors.black,
+                  ),
+                  ),
             trailing: Icon(Icons.arrow_forward),
             onTap: () => {
               Navigator.pop(context),
@@ -513,13 +579,77 @@ class _MainScreenState extends State<MainScreen> {
                     user: widget.user,
                   )))
             }),
+             Visibility(
+            visible: _isadmin,
+            child: Column(
+              children: <Widget>[
+                Divider(
+                  height: 2,
+                  color: Colors.black,
+                ),
+                Center(
+                  child: Text(
+                    "Admin Menu",
+                    style: TextStyle(color: Colors.black,
+                    ),
+                  ),
+                ),
+                ListTile(
+                    title: Text(
+                      "My Products",
+                      style: TextStyle(
+                        color: Colors.black,
+                      ),
+                    ),
+                    trailing: Icon(Icons.arrow_forward),
+                    onTap: () => {
+                          Navigator.pop(context),
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                    AdminProduct(
+                                        user: widget.user,
+                                      )))
+                        }),
+                ListTile(
+                  title: Text(
+                    "Customer Orders",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                  trailing: Icon(Icons.arrow_forward),
+                ),
+                ListTile(
+                  title: Text(
+                    "Report",
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                  trailing: Icon(Icons.arrow_forward),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
-  }*/
+  }
 
 
-  /*_addtocartdialog(int index) {
+  _addtoCartdialog(int index) {
+    if (widget.user.email == "unregistered@mybookshelf.com") {
+      Toast.show("Please register to use this function", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
+    }
+    if (widget.user.email == "admin@mybookshelf.com") {
+      Toast.show("Admin Mode!!!", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
+    }
     quantity = 1;
     showDialog(
       context: context,
@@ -532,7 +662,7 @@ class _MainScreenState extends State<MainScreen> {
         title: new Text(
           "Add " + productdata[index]['name'] + " to Cart?",
           style: TextStyle(
-                  color: Colors.white,
+                  color: Colors.black,
                 ),),
           content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -540,7 +670,7 @@ class _MainScreenState extends State<MainScreen> {
                   Text(
                     "Select quantity of product",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: Colors.black,
                     ),
                   ),
                   Row(
@@ -558,13 +688,13 @@ class _MainScreenState extends State<MainScreen> {
                             },
                             child: Icon(
                               MdiIcons.minus,
-                              color: Color.fromRGBO(101, 255, 218, 50),
+                              color: Colors.blue[500],
                             ),
                           ),
                           Text(
                             quantity.toString(),
                             style: TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                           ),
                           FlatButton(
@@ -583,7 +713,7 @@ class _MainScreenState extends State<MainScreen> {
                             },
                             child: Icon(
                               MdiIcons.plus,
-                              color: Color.fromRGBO(101, 255, 218, 50),
+                              color: Colors.blue[500],
                             ),
                           ),
                         ],
@@ -599,25 +729,39 @@ class _MainScreenState extends State<MainScreen> {
                 Navigator.of(context).pop(false);
                 _addtoCart(index);
               },
-              child: Text("Yes",
+              child: Text(
+                "Yes",
               style: TextStyle(
-                        color: Color.fromRGBO(101, 255, 218, 50),
-                        ),)),
+                        color: Colors.blue[500],
+                        ),
+                        )),
           MaterialButton(
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
-              child: Text("Cancel",
+              child: Text(
+                "Cancel",
               style: TextStyle(
-                        color: Color.fromRGBO(101, 255, 218, 50),
-          ),)),
+                        color: Colors.blue[500],
+          ),
+          )),
         ],
       );
         });
         });
-  }*/
+  }
 
-  /*void _addtoCart(int index) {
+  void _addtoCart(int index) {
+    if (widget.user.email == "unregistered@mybookshelf.com") {
+      Toast.show("Please register first", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
+    }
+    if (widget.user.email == "admin@mybookshelf.com") {
+      Toast.show("Admin mode", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
+    }
     try {
       int cquantity = int.parse(productdata[index]["quantity"]);
       print(cquantity);
@@ -633,6 +777,7 @@ class _MainScreenState extends State<MainScreen> {
         http.post(urlLoadJobs, body: {
           "email": widget.user.email,
           "proid": productdata[index]["id"],
+          "quantity": quantity.toString(),
         }).then((res) {
           print(res.body);
           if (res.body == "failed") {
@@ -644,6 +789,7 @@ class _MainScreenState extends State<MainScreen> {
             List respond = res.body.split(",");
             setState(() {
               cartquantity = respond[1];
+              widget.user.quantity = cartquantity;
             });
             Toast.show("Success add to cart", context,
                 duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
@@ -662,7 +808,7 @@ class _MainScreenState extends State<MainScreen> {
       Toast.show("Failed add to cart", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     }
-  }*/
+  }
 
   void _sortItem(String type) {
     try {
@@ -690,6 +836,31 @@ class _MainScreenState extends State<MainScreen> {
     } catch (e) {
       Toast.show("Error", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    }
+  }
+
+  gotoCart() async {
+    if (widget.user.email == "unregistered") {
+      Toast.show("Please register to use this function", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
+    } else if (widget.user.email == "admin@mybookshelf.com") {
+      Toast.show("Admin mode!!!", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
+    } else if (widget.user.quantity == "0") {
+      Toast.show("Cart empty", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
+    } else {
+      await Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (BuildContext context) => CartScreen(
+                    user: widget.user,
+                  )));
+      _loadData();
+      _loadCartQuantity();
     }
   }
 
@@ -737,7 +908,53 @@ class _MainScreenState extends State<MainScreen> {
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
     }
   }
+
+  Future<bool> _onBackPressed() {
+    return showDialog(
+          context: context,
+          builder: (context) => new AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20.0))),
+            title: new Text(
+              'Are you sure?',
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            content: new Text(
+              'Do you want to exit an App',
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            actions: <Widget>[
+              MaterialButton(
+                  onPressed: () {
+                    SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                  },
+                  child: Text(
+                    "Exit",
+                    style: TextStyle(
+                      color: Colors.blue[500],
+                    ),
+                  )),
+              MaterialButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false);
+                  },
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.blue[500],
+                    ),
+                  )),
+            ],
+          ),
+        ) ??
+        false;
+  }
 }
+
 
 
     
