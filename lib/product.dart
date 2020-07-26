@@ -1,7 +1,7 @@
 class Product {
-  String id, name, price, quantity, weight, type;
+  String pid, name, price, quantity, weight, type;
   Product({
-    this.id,
+    this.pid,
     this.name,
     this.price,
     this.quantity,

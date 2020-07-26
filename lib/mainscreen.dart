@@ -26,6 +26,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
+  GlobalKey<RefreshIndicatorState> refreshKey;
+
   List productdata;
   int curnumber = 1;
   double screenHeight, screenWidth;
@@ -41,6 +43,7 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     _loadData();
     _loadCartQuantity();
+    refreshKey = GlobalKey<RefreshIndicatorState>();
      if (widget.user.email == "admin@mybookshelf.com") {
       _isadmin = true;
      }
@@ -80,7 +83,15 @@ class _MainScreenState extends State<MainScreen> {
             ),
           ],
         ),
-        body: Container(
+        body: 
+          RefreshIndicator(
+            key: refreshKey,
+            color: Colors.blue[500],
+            onRefresh: () async {
+              await refreshList();
+            },
+        child:
+        Container(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -105,12 +116,12 @@ class _MainScreenState extends State<MainScreen> {
                                         children: <Widget>[
                                           Icon(
                                             MdiIcons.update,
-                                            color: Colors.white,
+                                            color: Colors.black,
                                           ),
                                           Text(
                                             "Recent",
                                             style:
-                                                TextStyle(color: Colors.white),
+                                                TextStyle(color: Colors.black),
                                           )
                                         ],
                                       )),
@@ -129,13 +140,13 @@ class _MainScreenState extends State<MainScreen> {
                                         // Replace with a Row for horizontal icon + text
                                         children: <Widget>[
                                           Icon(
-                                            MdiIcons.beer,
-                                            color: Colors.white,
+                                            MdiIcons.heart,
+                                            color: Colors.black,
                                           ),
                                           Text(
                                             "Romance",
                                             style:
-                                                TextStyle(color: Colors.white),
+                                                TextStyle(color: Colors.black),
                                           )
                                         ],
                                       )),
@@ -154,13 +165,13 @@ class _MainScreenState extends State<MainScreen> {
                                         // Replace with a Row for horizontal icon + text
                                         children: <Widget>[
                                           Icon(
-                                            MdiIcons.foodVariant,
-                                            color: Colors.white,
+                                            MdiIcons.dramaMasks,
+                                            color: Colors.black,
                                           ),
                                           Text(
                                             "Drama",
                                             style:
-                                                TextStyle(color: Colors.white),
+                                                TextStyle(color: Colors.black),
                                           )
                                         ],
                                       )),
@@ -179,13 +190,13 @@ class _MainScreenState extends State<MainScreen> {
                                         // Replace with a Row for horizontal icon + text
                                         children: <Widget>[
                                           Icon(
-                                            MdiIcons.foodApple,
-                                            color: Colors.white,
+                                            MdiIcons.moonWaningCrescent,
+                                            color: Colors.black,
                                           ),
                                           Text(
                                             "Religion",
                                             style:
-                                                TextStyle(color: Colors.white),
+                                                TextStyle(color: Colors.black),
                                           )
                                         ],
                                       )),
@@ -204,13 +215,13 @@ class _MainScreenState extends State<MainScreen> {
                                         // Replace with a Row for horizontal icon + text
                                         children: <Widget>[
                                           Icon(
-                                            MdiIcons.fish,
-                                            color: Colors.white,
+                                            MdiIcons.feather,
+                                            color: Colors.black,
                                           ),
                                           Text(
                                             "Poetry",
                                             style:
-                                                TextStyle(color: Colors.white),
+                                                TextStyle(color: Colors.black),
                                           )
                                         ],
                                       )),
@@ -219,6 +230,54 @@ class _MainScreenState extends State<MainScreen> {
                               SizedBox(
                                 width: 3,
                               ),
+                              Column(
+                              children: <Widget>[
+                                FlatButton(
+                                    onPressed: () => _sortItem("Autobiography"),
+                                    color: Colors.blue[500],
+                                    padding: EdgeInsets.all(10.0),
+                                    child: Column(
+                                      // Replace with a Row for horizontal icon + text
+                                      children: <Widget>[
+                                        Icon(
+                                          MdiIcons.humanGreeting,
+                                          color: Colors.black,
+                                        ),
+                                        Text(
+                                          "Autobiography",
+                                          style: TextStyle(color: Colors.black),
+                                        )
+                                      ],
+                                    )),
+                              ],
+                            ),
+                            SizedBox(
+                              width: 3,
+                            ),
+                            Column(
+                              children: <Widget>[
+                                FlatButton(
+                                    onPressed: () => _sortItem("Fantasy"),
+                                    color: Colors.blue[500],
+                                    padding: EdgeInsets.all(10.0),
+                                    child: Column(
+                                      // Replace with a Row for horizontal icon + text
+                                      children: <Widget>[
+                                        Icon(
+                                          MdiIcons.crown,
+                                          color: Colors.black,
+                                        ),
+                                        Text(
+                                          "Fantasy",
+                                          style: TextStyle(color: Colors.black),
+                                        )
+                                      ],
+                                    )),
+                              ],
+                            ),
+                            SizedBox(
+                              width: 3,
+                            ),
                               /*Column(
                                 children: <Widget>[
                                   FlatButton(
@@ -248,13 +307,13 @@ class _MainScreenState extends State<MainScreen> {
                                 children: <Widget>[
                                   FlatButton(
                                       onPressed: () => _sortItem("Others"),
-                                      color: Color.fromRGBO(101, 255, 218, 50),
+                                      color: Colors.grey,
                                       padding: EdgeInsets.all(10.0),
                                       child: Column(
                                         // Replace with a Row for horizontal icon + text
                                         children: <Widget>[
                                           Icon(
-                                            MdiIcons.ornament,
+                                            MdiIcons.bookOpenPageVariant,
                                             color: Colors.black,
                                           ),
                                           Text(
@@ -300,8 +359,8 @@ class _MainScreenState extends State<MainScreen> {
                                       {_sortItembyName(_prdController.text)},   
                                   elevation: 5,
                                   child: Text(
-                                    "Search Product",
-                                    style: TextStyle(color: Colors.white),
+                                    "Search Book",
+                                    style: TextStyle(color: Colors.black),
                                   )))
                         ],
                       ),
@@ -393,7 +452,7 @@ class _MainScreenState extends State<MainScreen> {
                       
             ],
           ),
-        ),
+          )),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () async {
               if (widget.user.email == "unregistered") {
@@ -530,7 +589,7 @@ class _MainScreenState extends State<MainScreen> {
                     _loadData(),
                   }),
           ListTile(
-              title: Text("Shopping Cart",
+              title: Text("Cart",
               style: TextStyle(
                   color: Colors.black,
                   ),
@@ -553,16 +612,17 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                   ),
             trailing: Icon(Icons.arrow_forward),
-             onTap: () => {
-                    Navigator.pop(context),
+             onTap: 
+               _paymentScreen),
+                    /*Navigator.pop(context),
                     Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (BuildContext context) =>
                                 PaymentHistoryScreen(
                                   user: widget.user,
-                                ))),
-                  }),
+                                ))),*/
+                  //}),
           ListTile(
             title: Text("User Profile",
             style: TextStyle(
@@ -596,7 +656,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 ListTile(
                     title: Text(
-                      "My Products",
+                      "Manage Book Details",
                       style: TextStyle(
                         color: Colors.black,
                       ),
@@ -612,7 +672,7 @@ class _MainScreenState extends State<MainScreen> {
                                         user: widget.user,
                                       )))
                         }),
-                ListTile(
+                /*ListTile(
                   title: Text(
                     "Customer Orders",
                     style: TextStyle(
@@ -629,7 +689,7 @@ class _MainScreenState extends State<MainScreen> {
                     ),
                   ),
                   trailing: Icon(Icons.arrow_forward),
-                ),
+                ),*/
               ],
             ),
           )
@@ -952,6 +1012,32 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ) ??
         false;
+  }
+
+   void _paymentScreen() {
+    if (widget.user.email == "unregistered@mybookshelf.com") {
+      Toast.show("Please register to use this function", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
+    } else if (widget.user.email == "admin@mybookshelf.com") {
+      Toast.show("Admin mode!!!", context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      return;
+    }
+    Navigator.pop(context);
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => PaymentHistoryScreen(
+                  user: widget.user,
+                )));
+  }
+
+   Future<Null> refreshList() async {
+    await Future.delayed(Duration(seconds: 2));
+    //_getLocation();
+    _loadData();
+    return null;
   }
 }
 

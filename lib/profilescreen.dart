@@ -27,7 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   double screenHeight, screenWidth;
   final f = new DateFormat('dd-MM-yyyy hh:mm a');
   var parsedDate;
-  final picker = ImagePicker();
+  //final picker = ImagePicker();
 
   @override
   void initState() {
@@ -257,10 +257,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: _registerAccount,
                     child: Text("REGISTER NEW ACCOUNT"),
                   ),
-                  MaterialButton(
+                  /*MaterialButton(
                     onPressed: null,
                     child: Text("BUY STORE CREDIT"),
-                  ),
+                  ),*/
                   
                 ])),
           ],
@@ -270,22 +270,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _takePicture() async {
-    File file;
+    
     if (widget.user.email == "unregistered") {
       Toast.show("Please register to use this function", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       return;
     }
+    File _image;
+    final picker = ImagePicker();
     final pickedFile = await picker.getImage(
         source: ImageSource.camera, maxHeight: 400, maxWidth: 300);
-        file = File(pickedFile.path);
+        setState(() {
+      _image = File(pickedFile.path);
+    });
+        //_image = File(pickedFile.path);
     //print(_image.lengthSync());
-    if (pickedFile == null) {
+    if (_image == null) {
       Toast.show("Please take image first", context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       return;
     } else {
-      String base64Image = base64Encode(file.readAsBytesSync());
+      String base64Image = base64Encode(_image.readAsBytesSync());
       print(base64Image);
       http.post("https://www.asaboleh.com/mybookshelf/php/upload_image.php", body: {
         "encoded_string": base64Image,

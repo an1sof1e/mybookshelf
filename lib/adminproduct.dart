@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mybookshelf/mainscreen.dart';
+import 'package:mybookshelf/editproduct.dart';
+//import 'package:mybookshelf/mainscreen.dart';
+import 'package:mybookshelf/newproduct.dart';
 //import 'package:mybookshelf/editproduct.dart';
 //import 'package:mybookshelf/newproduct.dart';
-//import 'package:mybookshelf/product.dart';
+import 'package:mybookshelf/product.dart';
 import 'package:mybookshelf/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:progress_dialog/progress_dialog.dart';
@@ -34,7 +36,7 @@ class _AdminProductState extends State<AdminProduct> {
   String curtype = "Recent";
   String cartquantity = "0";
   int quantity = 1;
-  String titlecenter = "Loading products...";
+  String titlecenter = "Loading books . . .";
   var _tapPosition;
   String scanPrId;
 
@@ -51,9 +53,11 @@ class _AdminProductState extends State<AdminProduct> {
     TextEditingController _prdController = new TextEditingController();
 
     return Scaffold(
+       backgroundColor: Colors.purple[300],
       appBar: AppBar(
+        backgroundColor: Colors.deepPurple[300],
         title: Text(
-          'Manage Your Products',
+          'Manage Your Books',
           style: TextStyle(
             color: Colors.white,
           ),
@@ -95,7 +99,7 @@ class _AdminProductState extends State<AdminProduct> {
                               children: <Widget>[
                                 FlatButton(
                                     onPressed: () => _sortItem("Recent"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
@@ -117,18 +121,18 @@ class _AdminProductState extends State<AdminProduct> {
                             Column(
                               children: <Widget>[
                                 FlatButton(
-                                    onPressed: () => _sortItem("Drink"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    onPressed: () => _sortItem("Romance"),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
                                       children: <Widget>[
                                         Icon(
-                                          MdiIcons.beer,
+                                          MdiIcons.heart,
                                           color: Colors.black,
                                         ),
                                         Text(
-                                          "Drink",
+                                          "Romance",
                                           style: TextStyle(color: Colors.black),
                                         )
                                       ],
@@ -142,18 +146,18 @@ class _AdminProductState extends State<AdminProduct> {
                             Column(
                               children: <Widget>[
                                 FlatButton(
-                                    onPressed: () => _sortItem("Grocery"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    onPressed: () => _sortItem("Drama"),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
                                       children: <Widget>[
                                         Icon(
-                                          MdiIcons.rice,
+                                          MdiIcons.dramaMasks,
                                           color: Colors.black,
                                         ),
                                         Text(
-                                          "Grocery",
+                                          "Drama",
                                           style: TextStyle(color: Colors.black),
                                         )
                                       ],
@@ -166,18 +170,18 @@ class _AdminProductState extends State<AdminProduct> {
                             Column(
                               children: <Widget>[
                                 FlatButton(
-                                    onPressed: () => _sortItem("Canned Food"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    onPressed: () => _sortItem("Religion"),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
                                       children: <Widget>[
                                         Icon(
-                                          MdiIcons.foodVariant,
+                                          MdiIcons.moonWaningCrescent,
                                           color: Colors.black,
                                         ),
                                         Text(
-                                          "Canned",
+                                          "Religion",
                                           style: TextStyle(color: Colors.black),
                                         )
                                       ],
@@ -190,18 +194,18 @@ class _AdminProductState extends State<AdminProduct> {
                             Column(
                               children: <Widget>[
                                 FlatButton(
-                                    onPressed: () => _sortItem("Baby"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    onPressed: () => _sortItem("Poetry"),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
                                       children: <Widget>[
                                         Icon(
-                                          MdiIcons.babyBottle,
+                                          MdiIcons.feather,
                                           color: Colors.black,
                                         ),
                                         Text(
-                                          "Baby",
+                                          "Poetry",
                                           style: TextStyle(color: Colors.black),
                                         )
                                       ],
@@ -215,18 +219,18 @@ class _AdminProductState extends State<AdminProduct> {
                             Column(
                               children: <Widget>[
                                 FlatButton(
-                                    onPressed: () => _sortItem("Household"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    onPressed: () => _sortItem("Autobiography"),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
                                       children: <Widget>[
                                         Icon(
-                                          MdiIcons.homeAutomation,
+                                          MdiIcons.humanGreeting,
                                           color: Colors.black,
                                         ),
                                         Text(
-                                          "Household",
+                                          "Autobiography",
                                           style: TextStyle(color: Colors.black),
                                         )
                                       ],
@@ -239,18 +243,18 @@ class _AdminProductState extends State<AdminProduct> {
                             Column(
                               children: <Widget>[
                                 FlatButton(
-                                    onPressed: () => _sortItem("Vegetable"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    onPressed: () => _sortItem("Fantasy"),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
                                       children: <Widget>[
                                         Icon(
-                                          MdiIcons.foodApple,
+                                          MdiIcons.crown,
                                           color: Colors.black,
                                         ),
                                         Text(
-                                          "Vegetable",
+                                          "Fantasy",
                                           style: TextStyle(color: Colors.black),
                                         )
                                       ],
@@ -260,11 +264,11 @@ class _AdminProductState extends State<AdminProduct> {
                             SizedBox(
                               width: 3,
                             ),
-                            Column(
+                            /*Column(
                               children: <Widget>[
                                 FlatButton(
                                     onPressed: () => _sortItem("Meat"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
@@ -288,7 +292,7 @@ class _AdminProductState extends State<AdminProduct> {
                               children: <Widget>[
                                 FlatButton(
                                     onPressed: () => _sortItem("Pet"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
@@ -313,7 +317,7 @@ class _AdminProductState extends State<AdminProduct> {
                               children: <Widget>[
                                 FlatButton(
                                     onPressed: () => _sortItem("Bread"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    color: Colors.blue[500],
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
@@ -332,18 +336,18 @@ class _AdminProductState extends State<AdminProduct> {
                             ),
                             SizedBox(
                               width: 3,
-                            ),
+                            ),*/
                             Column(
                               children: <Widget>[
                                 FlatButton(
                                     onPressed: () => _sortItem("Others"),
-                                    color: Color.fromRGBO(101, 255, 218, 50),
+                                    color: Colors.grey,
                                     padding: EdgeInsets.all(10.0),
                                     child: Column(
                                       // Replace with a Row for horizontal icon + text
                                       children: <Widget>[
                                         Icon(
-                                          MdiIcons.ornament,
+                                          MdiIcons.bookOpenPageVariant,
                                           color: Colors.black,
                                         ),
                                         Text(
@@ -373,7 +377,7 @@ class _AdminProductState extends State<AdminProduct> {
                           height: 30,
                           child: TextField(
                               style: TextStyle(
-                                color: Colors.white,
+                                color: Colors.black,
                               ),
                               autofocus: false,
                               controller: _prdController,
@@ -383,12 +387,12 @@ class _AdminProductState extends State<AdminProduct> {
                         )),
                         Flexible(
                             child: MaterialButton(
-                                color: Color.fromRGBO(101, 255, 218, 50),
+                                color: Colors.blue[500],
                                 onPressed: () =>
                                     {_sortItembyName(_prdController.text)},
                                 elevation: 5,
                                 child: Text(
-                                  "Search Product",
+                                  "Search Book",
                                   style: TextStyle(color: Colors.black),
                                 )))
                       ],
@@ -407,14 +411,14 @@ class _AdminProductState extends State<AdminProduct> {
                             child: Text(
                     titlecenter,
                     style: TextStyle(
-                        color: Color.fromRGBO(101, 255, 218, 50),
+                        color: Colors.black,
                         fontSize: 22,
                         fontWeight: FontWeight.bold),
                   ))))
                 : Expanded(
                     child: GridView.count(
                         crossAxisCount: 2,
-                        childAspectRatio: (screenWidth / screenHeight) / 0.65,
+                        childAspectRatio: (screenWidth / screenHeight) / 0.80,
                         children: List.generate(productdata.length, (index) {
                           return Container(
                               child: InkWell(
@@ -429,11 +433,11 @@ class _AdminProductState extends State<AdminProduct> {
                                               MainAxisAlignment.center,
                                           children: <Widget>[
                                             Container(
-                                              height: screenHeight / 5.9,
+                                              height: screenHeight / 4.9,
                                               width: screenWidth / 3.5,
-                                              child: ClipOval(
+                                              child: ClipRRect(
                                                 child: CachedNetworkImage(
-                                                  fit: BoxFit.fill,
+                                                  fit: BoxFit.scaleDown,
                                                   imageUrl: 
                                                       "https://www.asaboleh.com/mybookshelf/productimage/${productdata[index]['id']}.jpg",
                                                   placeholder: (context, url) =>
@@ -448,30 +452,30 @@ class _AdminProductState extends State<AdminProduct> {
                                                 maxLines: 1,
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
-                                                    color: Colors.white)),
+                                                    color: Colors.black)),
                                             Text(
                                               "RM " +
                                                   productdata[index]['price'],
                                               style: TextStyle(
                                                   fontWeight: FontWeight.bold,
-                                                  color: Colors.white),
+                                                  color: Colors.black),
                                             ),
                                             Text(
-                                              "Avail/Sold:" +
+                                              "Available/Sold: " +
                                                   productdata[index]
                                                       ['quantity'] +
                                                   "/" +
                                                   productdata[index]['sold'],
                                               style: TextStyle(
-                                                color: Colors.white,
+                                                color: Colors.black,
                                               ),
                                             ),
                                             Text(
-                                              "Weight:" +
-                                                  productdata[index]['weigth'] +
+                                              "Weight: " +
+                                                  productdata[index]['weight'] +
                                                   " gram",
                                               style: TextStyle(
-                                                color: Colors.white,
+                                                color: Colors.black,
                                               ),
                                             ),
                                           ],
@@ -494,11 +498,11 @@ class _AdminProductState extends State<AdminProduct> {
               label: "Scan Product",
               labelBackgroundColor: Colors.white, //_changeLocality()
               onTap: () => scanProductDialog()),
-          SpeedDialChild(
+          /*SpeedDialChild(
               child: Icon(Icons.report),
-              label: "Product Report",
+              label: "Sale Report",
               labelBackgroundColor: Colors.white, //_changeLocality()
-              onTap: () => null),
+              onTap: () => null),*/
         ],
       ),
     );
@@ -515,14 +519,14 @@ class _AdminProductState extends State<AdminProduct> {
           title: new Text(
             "Select scan options:",
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               MaterialButton(
-                  color: Color.fromRGBO(101, 255, 218, 50),
+                  color: Colors.blue[500],
                   onPressed: scanBarcodeNormal,
                   elevation: 5,
                   child: Text(
@@ -530,7 +534,7 @@ class _AdminProductState extends State<AdminProduct> {
                     style: TextStyle(color: Colors.black),
                   )),
               MaterialButton(
-                  color: Color.fromRGBO(101, 255, 218, 50),
+                  color: Colors.blue[500],
                   onPressed: scanQR,
                   elevation: 5,
                   child: Text(
@@ -637,7 +641,7 @@ class _AdminProductState extends State<AdminProduct> {
     try {
       ProgressDialog pr = new ProgressDialog(context,
           type: ProgressDialogType.Normal, isDismissible: true);
-      pr.style(message: "Searching...");
+      pr.style(message: "Searching . . .");
       pr.show();
       String urlLoadJobs ="https://www.asaboleh.com/mybookshelf/php/load_products.php";
       http.post(urlLoadJobs, body: {
@@ -646,7 +650,7 @@ class _AdminProductState extends State<AdminProduct> {
         if (res.body == "nodata") {
           setState(() {
             curtype = type;
-            titlecenter = "No product found";
+            titlecenter = "No book found";
             productdata = null;
           });
           pr.hide();
@@ -676,7 +680,7 @@ class _AdminProductState extends State<AdminProduct> {
       print(prname);
       ProgressDialog pr = new ProgressDialog(context,
           type: ProgressDialogType.Normal, isDismissible: true);
-      pr.style(message: "Searching...");
+      pr.style(message: "Searching . . .");
       pr.show();
       String urlLoadJobs ="https://www.asaboleh.com/mybookshelf/php/load_products.php";
       http
@@ -731,16 +735,16 @@ class _AdminProductState extends State<AdminProduct> {
     }
   }
 
-  /*_onProductDetail(int index) async {
+  _onProductDetail(int index) async {
     print(productdata[index]['name']);
     Product product = new Product(
         pid: productdata[index]['id'],
         name: productdata[index]['name'],
         price: productdata[index]['price'],
         quantity: productdata[index]['quantity'],
-        weigth: productdata[index]['weigth'],
-        type: productdata[index]['type'],
-        date: productdata[index]['date']);
+        weight: productdata[index]['weight'],
+        type: productdata[index]['type']);
+        //date: productdata[index]['date']);
     await Navigator.push(
         context,
         MaterialPageRoute(
@@ -749,7 +753,7 @@ class _AdminProductState extends State<AdminProduct> {
                   product: product,
                 )));
     _loadData();
-  }*/
+  }
 
   _showPopupMenu(int index) async {
     final RenderBox overlay = Overlay.of(context).context.findRenderObject();
@@ -768,9 +772,9 @@ class _AdminProductState extends State<AdminProduct> {
           child: GestureDetector(
               onTap: () =>
                   {Navigator.of(context).pop(), 
-                  (index)},
+                  _onProductDetail(index)},
               child: Text(
-                "Update Product?",
+                "Update Book?",
                 style: TextStyle(
                   color: Colors.black,
                 ),
@@ -781,7 +785,7 @@ class _AdminProductState extends State<AdminProduct> {
               onTap: () =>
                   {Navigator.of(context).pop(), _deleteProductDialog(index)},
               child: Text(
-                "Delete Product?",
+                "Delete Book?",
                 style: TextStyle(color: Colors.black),
               )),
         ),
@@ -803,20 +807,20 @@ class _AdminProductState extends State<AdminProduct> {
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(20.0))),
           title: new Text(
-            "Delete Product Id " + productdata[index]['id'],
+            "Delete Book ID " + productdata[index]['id'] + "?",
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
           content:
-              new Text("Are you sure?", style: TextStyle(color: Colors.white)),
+              new Text("Are you sure?", style: TextStyle(color: Colors.black)),
           actions: <Widget>[
             // usually buttons at the bottom of the dialog
             new FlatButton(
               child: new Text(
                 "Yes",
                 style: TextStyle(
-                  color: Color.fromRGBO(101, 255, 218, 50),
+                  color: Colors.blue[500],
                 ),
               ),
               onPressed: () {
@@ -828,7 +832,7 @@ class _AdminProductState extends State<AdminProduct> {
               child: new Text(
                 "No",
                 style: TextStyle(
-                  color: Color.fromRGBO(101, 255, 218, 50),
+                  color: Colors.blue[500],
                 ),
               ),
               onPressed: () {
@@ -844,7 +848,7 @@ class _AdminProductState extends State<AdminProduct> {
   void _deleteProduct(int index) {
     ProgressDialog pr = new ProgressDialog(context,
         type: ProgressDialogType.Normal, isDismissible: false);
-    pr.style(message: "Deleting product...");
+    pr.style(message: "Deleting book . . .");
     pr.show();
     http.post("https://www.asaboleh.com/mybookshelf/php/delete_product.php", body: {
       "proid": productdata[index]['id'],
@@ -868,7 +872,7 @@ class _AdminProductState extends State<AdminProduct> {
 
   Future<void> createNewProduct() async {
     await Navigator.push(context,
-        MaterialPageRoute(builder: (BuildContext context) => MainScreen()));
+        MaterialPageRoute(builder: (BuildContext context) =>NewProduct()));
     _loadData();
   }
 }
